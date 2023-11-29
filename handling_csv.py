@@ -7,8 +7,8 @@ csv_file_name = 'Trees.csv'
 
 with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
     with zip_ref.open(csv_file_name) as file:
-        df = pd.read_csv(file)
+        df_trees = pd.read_csv(file)
 
-df = df[usefulcol_trees]
+df_trees = df_trees[usefulcol_trees]
 
-print(df.head())
+print(df_trees.head())
