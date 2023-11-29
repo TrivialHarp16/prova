@@ -26,7 +26,7 @@ with zipfile.ZipFile(NYPD_zip_file_path, 'r') as zip_ref:
 
 # print(df_crimes)+
 
-df_crimes = df_crimes[["Latitude", "Longitude"]].head(500)
+df_crimes = df_crimes[["Latitude", "Longitude"]].head(1)
 
 # col_to_check = ["Latitude", "Longitude"]
 
