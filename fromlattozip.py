@@ -26,7 +26,7 @@ with zipfile.ZipFile(NYPD_zip_file_path, 'r') as zip_ref:
 
 # print(df_crimes)+
 
-df_crimes = df_crimes[["Latitude", "Longitude"]]
+df_crimes = df_crimes[["Latitude", "Longitude"]].head(5)
 
 # col_to_check = ["Latitude", "Longitude"]
 
@@ -48,7 +48,7 @@ def get_zipcode(df, geolocator, lat_field, lon_field):
 
 
 
-geolocator = geopy.Nominatim(user_agent='fromlatlongtozip', timeout=10)
+geolocator = geopy.Nominatim(user_agent='my_geocoder', timeout=10)
 
 zipcodes = df_crimes.apply(get_zipcode, axis=1, geolocator=geolocator, lat_field="Latitude", lon_field="Longitude")
 
