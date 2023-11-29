@@ -26,11 +26,11 @@ with zipfile.ZipFile(NYPD_zip_file_path, 'r') as zip_ref:
 
 # print(df_crimes)+
 
-df_crimes = df_crimes[["BORO_NM"]]
+#df_crimes = df_crimes[["BORO_NM"]]
 
 # col_to_check = ["Latitude", "Longitude"]
 
-df_crimes = df_crimes.dropna()
+#df_crimes = df_crimes.dropna()
 
 # def filter(list):
 #     for element in list[:]:
@@ -40,22 +40,22 @@ df_crimes = df_crimes.dropna()
 # latitude = filter(latitude)
 # longitude = filter(longitude)
 
-boro_counts = df_crimes['BORO_NM'].value_counts()
+#boro_counts = df_crimes['BORO_NM'].value_counts()
 
-print(boro_counts)
+#print(boro_counts)
 
-# def get_zipcode(df, geolocator, lat_field, lon_field):
-#     location = geolocator.reverse((df[lat_field], df[lon_field]))
-#     return location.raw['address']['postcode']
-
-
-
-# geolocator = geopy.Nominatim(user_agent='my_geocoder', timeout=10)
-
-# zipcodes = df_crimes.apply(get_zipcode, axis=1, geolocator=geolocator, lat_field="Latitude", lon_field="Longitude")
+def get_zipcode(df, geolocator, lat_field, lon_field):
+    location = geolocator.reverse((df[lat_field], df[lon_field]))
+    return location.raw['address']['postcode']
 
 
-# df_crimes['ZipCode'] = zipcodes
+
+geolocator = geopy.Nominatim(user_agent='my_geocoder', timeout=10)
+
+zipcodes = df_crimes.apply(get_zipcode, axis=1, geolocator=geolocator, lat_field="Latitude", lon_field="Longitude")
+
+
+df_crimes['ZipCode'] = zipcodes
 
 
 # print(df_crimes.head())
