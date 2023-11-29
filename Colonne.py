@@ -12,4 +12,4 @@ usefulcol_zipcode = ["Borough", "Neighborhood", "ZipCode"]
 
 usefulcol_attraction = ["Tourist Spot", "Address", "Zipcode", "Latitude", "Longitude"] #se non riusciamo a estrarre la long e lati usare address and zipcode
 
-usefulcol_crimes = []
+usefulcol_crimes = ["Latitude", "Longitude"]
