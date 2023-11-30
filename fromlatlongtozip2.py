@@ -14,7 +14,7 @@ with zipfile.ZipFile(NYPD_zip_file_path, 'r') as zip_ref:
     with zip_ref.open(crimes_csv_file_name) as file:
         df_crimes = pd.read_csv(file)
 
-df = df_crimes[['Latitude', 'Longitude']]
+df = df_crimes[['Latitude', 'Longitude']].head(1)
 df_clean = df.dropna()
 
 # zip = search.by_coordinates(40.828848, -73.916661, radius=10, returns=1)
@@ -27,6 +27,6 @@ def get_zipcode(row):
 
 df_clean['zipcode'] = df_clean.apply(get_zipcode, axis=1)
 
-df_crimes.to_csv('Crimes2.csv', index=True)
+#df_crimes.to_csv('Crimes2.csv', index=True)
 
-print("ok")
+#print("ok")
