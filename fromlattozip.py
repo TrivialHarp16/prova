@@ -87,7 +87,7 @@ def get_zip_code(coord):
     else:
         return None
 
-def parallelize_extraction(coordinates, num_processes=8):
+def parallelize_extraction(coordinates, num_processes=10):
     with Pool(num_processes) as pool:
         zip_codes = pool.map(get_zip_code, coordinates)
     return zip_codes
