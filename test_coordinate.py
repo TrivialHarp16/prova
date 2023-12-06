@@ -1,6 +1,22 @@
 import pandas as pd
+import math
 
-def calculate_center(csv_file, selected_attractions):
+class GeoCoords:
+    def __init__(self, latitude, longitude):
+        if not -90 <= latitude <= 90 or not -180 <= longitude <= 180:
+            raise ValueError("Invalid latitude or longitude values")
+        self.latitude = latitude
+        self.longitude = longitude
+
+def calculate_center(selected_attractions, csv_file = 'attractions.csv'):
+    '''
+    calculate_center return the center point given the coordinates of different attractions
+
+    selected_attraction : list : str
+        a list of all the selected attraction
+    csv_file : str
+        the path of the dataset containing the attractions name and their coordinates
+    '''
     # Load data from CSV
     df = pd.read_csv(csv_file)
 
@@ -11,36 +27,24 @@ def calculate_center(csv_file, selected_attractions):
     center_latitude = filtered_df['latitude'].mean()
     center_longitude = filtered_df['longitude'].mean()
 
-    return center_latitude, center_longitude
-
-class GeoCoords:
-    def __init__(self, latitude, longitude):
-        if not -90 <= latitude <= 90 or not -180 <= longitude <= 180:
-            raise ValueError("Invalid latitude or longitude values")
-        self.latitude = latitude
-        self.longitude = longitude
-
-def get_coordinates(position, n_range):
-    in_range = []
-    lat_start = max(-90, position.latitude - n_range)
-    lat_end = min(90, position.latitude + n_range)
-    lon_start = max(-180, position.longitude - n_range)
-    lon_end = min(180, position.longitude + n_range)
-
-    lat_step = 0.00000000000001  # Smaller step for more precision
-    lon_step = 0.00000000000001  # Smaller step for more precision
-
-    current_lat = lat_start
-    while current_lat <= lat_end:
-        current_lon = lon_start
-        while current_lon <= lon_end:
-            in_range.append(GeoCoords(current_lat, current_lon))
-            current_lon += lon_step
-        current_lat += lat_step
-
-    return in_range
+    return GeoCoords(center_latitude, center_longitude)
 
 def is_within_range(lat, lon, center, range):
+
+    '''
+    is_within_range checks if a given set of latitude and longitude is inside a given range from a given center
+
+    Parameters
+    ----------
+    lat : float
+        latitude of the location we want to check
+    lon : float
+        longitude of the location we want to check
+    center : GeoCoords object
+        the geographical coordinates of the central point of our search_area returned by the function "calculate_center"
+    range : float
+        the range of our search_area in degrees. 
+    '''
     return center.latitude - range <= lat <= center.latitude + range and \
            center.longitude - range <= lon <= center.longitude + range
 
@@ -51,33 +55,56 @@ def find_airbnb_in_range(airbnb_list, center, range):
             in_range_airbnbs.append(airbnb)
     return in_range_airbnbs
 
-# Example Airbnb dataset
-# airbnb_dataset = [
-#     {'id': 1, 'latitude': 40.721, 'longitude': -73.981},
-#     {'id': 2, 'latitude': 40.722, 'longitude': -73.989},
-#     # ... more listings ...
-# ]
 
-airbnb_dataset = pd.read_csv("/Users/simonedilorenzo/prova/Datasets/AirBnb_Listing.csv")
-# Define the center and range
-central_position = GeoCoords(40.722414066666666, -73.98609163333333)
-search_range = 0.000000001  # 0.01 degrees in latitude and longitude
 
-# Find Airbnb listings in range
-listings_in_range = find_airbnb_in_range(airbnb_dataset, central_position, search_range)
+def dist_to_deg(dist, center):
 
-for listing in listings_in_range:
-    print(f"Airbnb ID: {listing['id']}, Latitude: {listing['latitude']}, Longitude: {listing['longitude']}")
-# # Example usage
-# selected_attractions = ['Brooklyn Botanic Garden', 'Holographic Studios', 'Sleep No More']
-# center_point = calculate_center('/Users/simonedilorenzo/prova/Datasets/attractions.csv', selected_attractions)
-# print("Center Point:", center_point)
+    '''
+    "dist_to_deg" will compute the degree variation in latitude that correspond to the meters inputted. 
+    this result will be used as the search_range in the function "find_airbnb_in_range"
 
-# position = GeoCoords(40.722414066666666, -73.98609163333333)
-# ranges = get_coordinates(position, 0.0000000000001)
+    Parameters
+    ----------
+    dist : int
+        distance in meters that correspond to the radius of the search_area
+    center : GeoCoords object
+        the geographical coordinates of the central point of our search_area returned by the function "calculate_center"
+    '''
 
-# for cords in ranges:
-#     print(f"{cords.latitude}, {cords.longitude}")
+    EARTH_RADIUS = 6378137  # Earth's radius in meters
+    CIRCUMFERENCE = 2 * math.pi * EARTH_RADIUS  # Earth's circumference in meters
+    conversion_factor = CIRCUMFERENCE * math.cos(math.radians(center.latitude)) / 360
+    var_degree = dist / conversion_factor
 
+    return var_degree
+
+
+selected_attractions = ['Brooklyn Botanic Garden', 'Holographic Studios', 'Sleep No More']
+center_point = calculate_center(selected_attractions)
+print(f"Center Point: {center_point.latitude}, {center_point.latitude}")
+
+# Function to extract ID from URL
+def extract_id(url):
+    return int(url.split('/')[-1])
+
+
+if __name__ == "__main__":
+
+    airbnb_dataset = pd.read_csv('AirBnb.csv')
+    airbnb_list = [
+                    {'id': extract_id(row['listing_url']), 
+                    'latitude': row['latitude'], 
+                    'longitude': row['longitude'], 
+                    'zipcode': row['zipcode']
+                    } for index, row in airbnb_dataset.iterrows()
+                ]
+
+    search_range = dist_to_deg(100, center_point)
+
+    # Find Airbnb listings in range
+    listings_in_range = find_airbnb_in_range(airbnb_list, center_point, search_range)
+
+    for listing in listings_in_range:
+        print(f"Airbnb ID: {listing['id']}, Latitude: {listing['latitude']}, Longitude: {listing['longitude']}, zipcode: {listing['zipcode']}")
 
 
